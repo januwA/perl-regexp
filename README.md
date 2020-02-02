@@ -16,4 +16,12 @@ const r = p.replace("colorRed", "-\\l$1");
 expect(r).toBe("color-red");
 
 expect(/(ajanuw)/.replace("hello ajanuw", "\\u$1")).toBe("hello Ajanuw");
+
+
+const p = new PerlRegExp("(-)");
+const r = p.replace("color-red", (match, g1) => {
+  expect(g1).toBe("-");
+  return "_";
+});
+expect(r).toBe("color_red");
 ```

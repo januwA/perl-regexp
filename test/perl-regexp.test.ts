@@ -27,4 +27,27 @@ describe("PerlRegExp", () => {
     const r = p.replace("color-red", "\\Q$1");
     expect(r).toBe("color\\-red");
   });
+  it("replace test Replacer", () => {
+    const p = new PerlRegExp("(-)");
+    const r = p.replace("color-red", (match, g1) => {
+      expect(g1).toBe("-");
+      return "_";
+    });
+    expect(r).toBe("color_red");
+  });
+  it("replace test $`", () => {
+    const p = new PerlRegExp("(-)");
+    const r = p.replace("color-red", "\\U$`");
+    expect(r).toBe("colorCOLORred");
+  });
+  it("replace test $'", () => {
+    const p = new PerlRegExp("(-)");
+    const r = p.replace("color-red", "\\U$'");
+    expect(r).toBe("colorREDred");
+  });
+  it("replace test $&", () => {
+    const p = new PerlRegExp("(-)");
+    const r = p.replace("color-red", "$&$&");
+    expect(r).toBe("color--red");
+  });
 });

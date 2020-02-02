@@ -24,9 +24,15 @@ function g1LowerCase(_: string, g1: string) {
   return g1.toLowerCase();
 }
 
+export interface Replacer {
+  (substring: string, ...args: any[]): string;
+}
+
+export type ReplaceValue = string | Replacer;
+
 declare global {
   interface RegExp {
-    replace(str: string, replaceValue: string): string;
+    replace(str: string, replaceValue: ReplaceValue): string;
   }
 }
 
@@ -50,19 +56,25 @@ declare global {
  * console.log(m); // colorRed
  * ```
  */
-RegExp.prototype.replace = function(str: string, replaceValue: string) {
+RegExp.prototype.replace = function(str: string, replaceValue: ReplaceValue) {
+  if (replaceValue instanceof Function) {
+    return str.replace(this, replaceValue);
+  }
   return str.replace(this, function(match: string) {
     if (!match) return "";
-    const args = Array.prototype.slice.call(arguments, 1); // 所有的打组
-    const str: string = args.splice(args.length - 1, 1)[0]; // 获取元字符
-    const index: number = args.splice(args.length - 1, 1)[0]; // 获取 index
+    const args = Array.from(arguments).slice(1); // 所有的打组
+    const str = args.splice(args.length - 1, 1); // 获取元字符
+    const index = args.splice(args.length - 1, 1); // 获取 index
 
     let newReplaceValue = replaceValue;
-    newReplaceValue = newReplaceValue.replace(/\$\&/g, match); // 匹配的字符串
-    newReplaceValue = newReplaceValue.replace(/\$`/g, str.substr(0, index)); // 匹配部分的前一部分字符串
-    newReplaceValue = newReplaceValue.replace(/\$'/g, str.substr(index + 1)); // 还没有匹配的剩余字符串
 
-    // 将打组，分配到各个$0-7
+    newReplaceValue = newReplaceValue.replace(/\$\+/g, (RegExp as any)["$+"]); // 匹配到的最后一个子串（如果存在）
+    newReplaceValue = newReplaceValue.replace(/\$_/g, (RegExp as any)["$_"]); // 正则表达式所匹配的字符串
+    newReplaceValue = newReplaceValue.replace(/\$\&/g, (RegExp as any)["$&"]); // 最后匹配到的字符串
+    newReplaceValue = newReplaceValue.replace(/\$`/g, (RegExp as any)["$`"]); // 匹配部分的前一部分字符串
+    newReplaceValue = newReplaceValue.replace(/\$'/g, (RegExp as any)["$'"]); // 还没有匹配的剩余字符串
+
+    // 将打组，分配到各个$1-9
     args
       .map(i => (i === undefined ? "" : i))
       .forEach((item, index) => {
@@ -87,11 +99,11 @@ RegExp.prototype.replace = function(str: string, replaceValue: string) {
 };
 
 export class PerlRegExp extends RegExp {
-  constructor(pattern: string, flags: string) {
+  constructor(pattern: string, flags?: string) {
     super(handlePattern(pattern, flags), handleFlags(flags));
   }
 
-  replace(str: string, replaceValue: string): string {
+  replace(str: string, replaceValue: ReplaceValue): string {
     return super.replace(str, replaceValue);
   }
 }
