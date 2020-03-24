@@ -3,13 +3,29 @@ const U_replace = /(?:\\U([a-z]+)(\\E)?)/g;
 const l_replace = /(?:\\l([A-Z]))/g;
 const L_replace = /(?:\\L([A-Z]+)(\\E)?)/g;
 const Q_replace = /(?:\\Q([^\\E]*(?:\\E)?))/g;
+const all_space = /\s/g;
+const start_slash = /^\//;
+const end_slash = /\/$/;
 
 function hasX(flags?: string): boolean {
   return !!flags && flags.includes("x");
 }
 
-function handlePattern(pattern: string, flags?: string) {
-  return hasX(flags) ? pattern.replace(/\s/g, "") : pattern;
+function handlePattern(pattern: string | RegExp, flags?: string) {
+  // 不包含x修饰符，直接返回
+  if (!hasX(flags)) return pattern;
+
+  if (typeof pattern === "string") {
+    // 如果是string，斩掉所有空格返回
+    return pattern.replace(all_space, "");
+  } else {
+    // 如果是Regexp, 转化为字符串后，斩掉空格和首位的 /
+    return pattern
+      .toString()
+      .replace(all_space, "")
+      .replace(start_slash, "")
+      .replace(end_slash, "");
+  }
 }
 
 function handleFlags(flags?: string) {
@@ -60,6 +76,7 @@ RegExp.prototype.replace = function(str: string, replaceValue: ReplaceValue) {
   if (replaceValue instanceof Function) {
     return str.replace(this, replaceValue);
   }
+
   return str.replace(this, function(match: string) {
     if (!match) return "";
     const args = Array.from(arguments).slice(1); // 所有的打组
@@ -99,7 +116,7 @@ RegExp.prototype.replace = function(str: string, replaceValue: ReplaceValue) {
 };
 
 export class PerlRegExp extends RegExp {
-  constructor(pattern: string, flags?: string) {
+  constructor(pattern: string | RegExp, flags?: string) {
     super(handlePattern(pattern, flags), handleFlags(flags));
   }
 

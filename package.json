@@ -1,12 +1,11 @@
 {
   "name": "perl-regexp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "在`javascript`中勉强模拟`perl`的正则表达式",
   "private": true,
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "start": "node ./dev-server.js",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\" \"src/**/*.html\" \"src/**/*.css\" \"src/**/*.json\"",
     "test": "jest"
   },

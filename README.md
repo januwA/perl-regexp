@@ -10,6 +10,10 @@ npm i perl-regexp
 ## 增加了`x`修饰符，可以在正则表达式中添加空格
 ```ts
 const p = new PerlRegExp(" (?:- (\\w) ) ", "xig");
+
+// or 0.3.0
+// const p = new PerlRegExp(/ (?:- (\w) ) /, "xig");
+
 const r = p.replace("color-red", "\\u$1");
 expect(r).toBe("colorRed");
 ```
