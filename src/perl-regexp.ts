@@ -1,15 +1,12 @@
-const u_replace = /(?:\\u([a-z]))/g;
-const U_replace = /(?:\\U([a-z]+)(\\E)?)/g;
-const l_replace = /(?:\\l([A-Z]))/g;
-const L_replace = /(?:\\L([A-Z]+)(\\E)?)/g;
-const Q_replace = /(?:\\Q([^\\E]*(?:\\E)?))/g;
-const all_space = /\s/g;
-const start_slash = /^\//;
-const end_slash = /\/$/;
-
-function hasX(flags?: string): boolean {
-  return !!flags && flags.includes("x");
-}
+import { hasX, regexp2String } from "./util";
+import {
+  all_space,
+  u_replace,
+  U_replace,
+  l_replace,
+  L_replace,
+  Q_replace
+} from "./exp";
 
 function handlePattern(pattern: string | RegExp, flags?: string) {
   // 不包含x修饰符，直接返回
@@ -20,11 +17,8 @@ function handlePattern(pattern: string | RegExp, flags?: string) {
     return pattern.replace(all_space, "");
   } else {
     // 如果是Regexp, 转化为字符串后，斩掉空格和首位的 /
-    return pattern
-      .toString()
-      .replace(all_space, "")
-      .replace(start_slash, "")
-      .replace(end_slash, "");
+    // 如果存在[flags]则替换[Regexp.flags]，
+    return flags ? regexp2String(pattern) : pattern;
   }
 }
 
@@ -47,6 +41,11 @@ export interface Replacer {
 export type ReplaceValue = string | Replacer;
 
 export class PerlRegExp extends RegExp {
+  /**
+   *
+   * @param pattern string或则RegExp
+   * @param flags 如果存在则替换[pattern]的flags, 不存在则会继承[pattern]的flags, 如果有的话
+   */
   constructor(pattern: string | RegExp, flags?: string) {
     super(handlePattern(pattern, flags), handleFlags(flags));
     Object.setPrototypeOf(this, PerlRegExp.prototype);
@@ -73,12 +72,11 @@ export class PerlRegExp extends RegExp {
    * ```
    */
   replace(str: string, replaceValue: ReplaceValue): string {
-    // return super.replace(str, replaceValue);
     if (replaceValue instanceof Function) {
       return str.replace(this, replaceValue);
     }
 
-    return str.replace(this, function(match: string) {
+    return str.replace(this, function (match: string) {
       if (!match) return "";
       const args = Array.from(arguments).slice(1); // 所有的打组
       const str = args.splice(args.length - 1, 1); // 获取元字符
