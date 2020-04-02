@@ -3,8 +3,7 @@
 		"outDir": "./dist/",
 		"noImplicitAny": true,
 		"module": "commonjs",
-		"target": "es5",
-		"jsx": "react",
+		"target": "es6",
 		"allowJs": true,
 		"incremental": true,
 		"strict": true,
@@ -19,14 +18,7 @@
 		"typeRoots": [
 			"node_modules/@types"
 		],
-		"paths": {
-			"~src/*": [
-				"./src/*"
-			],
-			"~assets/*": [
-				"./src/assets/*"
-			]
-		}
+		"paths": {}
 	},
 	"exclude": [
 		"node_modules",

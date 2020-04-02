@@ -5,7 +5,6 @@ describe("PerlRegExp", () => {
     const p = new PerlRegExp(/ (?:- (\w) ) /, "xig");
     const r = p.replace("color-red", "\\u$1");
     expect(r).toBe("colorRed");
-    expect(/(ajanuw)/.replace("hello ajanuw", "\\u$1")).toBe("hello Ajanuw");
   });
 
   it("replace test \\U", () => {
