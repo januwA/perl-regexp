@@ -5,7 +5,7 @@ import {
   U_replace,
   l_replace,
   L_replace,
-  Q_replace
+  Q_replace,
 } from "./exp";
 
 function handlePattern(pattern: string | RegExp, flags?: string) {
@@ -22,7 +22,15 @@ function handlePattern(pattern: string | RegExp, flags?: string) {
   }
 }
 
-function handleFlags(flags?: string) {
+function handleFlags(pattern: string | RegExp, flags?: string) {
+  if (pattern instanceof RegExp && pattern.flags) {
+    if (!flags) flags = pattern.flags;
+    else {
+      flags += pattern.flags; // 继承flags
+      flags = Array.from(new Set(flags.split(""))).join(""); // 去掉重复项
+      
+    }
+  }
   return hasX(flags) ? flags!.replace(/x/g, "") : flags;
 }
 
@@ -47,7 +55,7 @@ export class PerlRegExp extends RegExp {
    * @param flags 如果存在则替换[pattern]的flags, 不存在则会继承[pattern]的flags, 如果有的话
    */
   constructor(pattern: string | RegExp, flags?: string) {
-    super(handlePattern(pattern, flags), handleFlags(flags));
+    super(handlePattern(pattern, flags), handleFlags(pattern, flags));
     Object.setPrototypeOf(this, PerlRegExp.prototype);
   }
 
@@ -79,8 +87,8 @@ export class PerlRegExp extends RegExp {
     return str.replace(this, function (match: string) {
       if (!match) return "";
       const args = Array.from(arguments).slice(1); // 所有的打组
-      const str = args.splice(args.length - 1, 1); // 获取元字符
-      const index = args.splice(args.length - 1, 1); // 获取 index
+      // const str = args.splice(args.length - 1, 1); // 获取元字符
+      // const index = args.splice(args.length - 1, 1); // 获取 index
 
       let newReplaceValue = replaceValue;
 
@@ -92,7 +100,7 @@ export class PerlRegExp extends RegExp {
 
       // 将打组，分配到各个$1-9
       args
-        .map(i => (i === undefined ? "" : i))
+        .map((i) => (i === undefined ? "" : i))
         .forEach((item, index) => {
           newReplaceValue = newReplaceValue.replace(
             new RegExp(`\\$${index + 1}`, "g"),

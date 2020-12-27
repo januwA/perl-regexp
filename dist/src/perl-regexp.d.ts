@@ -3,6 +3,11 @@ export interface Replacer {
 }
 export declare type ReplaceValue = string | Replacer;
 export declare class PerlRegExp extends RegExp {
+    /**
+     *
+     * @param pattern string或则RegExp
+     * @param flags 如果存在则替换[pattern]的flags, 不存在则会继承[pattern]的flags, 如果有的话
+     */
     constructor(pattern: string | RegExp, flags?: string);
     /**
      *

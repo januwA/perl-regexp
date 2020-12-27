@@ -1,24 +1,24 @@
 ## PerlRegExp
 
-> 在`javascript`中勉强模拟`perl`的正则表达式
+perl regexp in javascript
 
 ## install
 ```
 npm i perl-regexp
 ```
 
-## 增加了`x`修饰符，可以在正则表达式中添加空格
+## Added `x` modifier, you can add spaces in regular expressions
 ```ts
 const p = new PerlRegExp(" (?:- (\\w) ) ", "xig");
 
-// or 0.3.0
+// or
 // const p = new PerlRegExp(/ (?:- (\w) ) /, "xig");
 
 const r = p.replace("color-red", "\\u$1");
 expect(r).toBe("colorRed");
 ```
 
-## 添加了`replace`方法, 可以使用`\u \U \l \L \Q \E`，具体可以看`replace`方法的注释
+## replace
 ```ts
 const p = new PerlRegExp(" ([A-Z]) ", "xg");
 const r = p.replace("colorRed", "-\\l$1");
@@ -31,3 +31,11 @@ const r = p.replace("color-red", (match, g1) => {
 });
 expect(r).toBe("color_red");
 ```
+
+
+* "\u" convert the next letter to uppercase
+* "\U" will convert the following characters to uppercase, until \E
+* "\l" convert the next letter to lowercase
+* "\L" will convert the following characters to lowercase, until \E
+* "\Q" put it to the non-word characters between \E and escape with a backslash
+* "\E" ends the scope of action \L, \U, \Q starts

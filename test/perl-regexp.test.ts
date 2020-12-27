@@ -50,16 +50,13 @@ describe("PerlRegExp", () => {
     expect(r).toBe("color--red");
   });
   it("replace test", () => {
-    const p = new PerlRegExp(/ a /gimy, "xg");
+    const p = new PerlRegExp(/ a /g, "x");
     const r = p.replace("Ajanuw", "-");
     expect(r).toBe("Aj-nuw");
   });
   it("extend flags test", () => {
-    // 继承 flags
-    expect(new PerlRegExp(/a/i).toString()).toBe("/a/i");
-  });
-  it("replace flags test", () => {
-    // 替换 flags
-    expect(new PerlRegExp(/a/i, "gm").toString()).toBe("/a/gm");
+    expect(new PerlRegExp(/a/i).flags).toBe("i");
+    expect(new PerlRegExp(/a/i, "gm").flags).toBe("gim");
+    expect(new PerlRegExp(/a/, "igm").flags).toBe("gim");
   });
 });
